@@ -22,34 +22,43 @@ The application's WebSocket architecture delivers instant task updates via dedic
 
 ## ! Deliverables and Evaluation Criteria !
 
-I have implemented the entire application for this showcase.
+I have implemented the entire application for this showcase as Corrected / Improved
 
 ### Asynchronous Notification
 
+(Security) - I have included sanitation and application vulnerabilities protection mechanisms, such as CSRF, CSP, etc.
+
+#### Changes made for asynchronous notifications
+
 (BackgroundTaskQueue) - To prevent the main thread from being blocked, I implemented BackgroundTaskQueue class, which handles background tasks in the queue using python threading. After each request, new (background task) is appended to the queue using the add_task function. These tasks are then executed in the background. To enhance efficiency and reduce unnecessary CPU usage, task_queue.get utilizes a timeout of 0.5, which can minimize excessive waiting. The BackgroundTaskQueue allows for the configuration of num_workers, thereby enabling the management of a specified number of background workers for task execution.
 
-(Security) - I have included sanitation and application vulnerabilities protection mechanisms, such as CSRF, CSP, etc.
+#### Streaming updates
 
 When a user submits a task request, my system follows this process:
   1. Verifies the CSRF token, CSP and common vulnerabilities using (flask-talisman, flask-WTF, Flask-Limiter)
   2. Validates the payload through Marshmallow schema (TaskDTOSchema, TaskDTOUpdateSchema)
   3. Updates the database synchronously
   4. After the update, the system reliably dispatches a new socket event to the background task queue for asynchronous execution in _worker_loop, ensuring optimal performance in the main thread. (BackgroundTaskQueue)
+  5. Events are populated to the connected clients
 
-For new clients, backend transmits all latest tasks sorted_by task_id when socket connection is established. This ensures that tasks remain ordered during page refreshes and seamlessly integrates with Angular's @for (...; trackBy: task.id) functionality.
+For new clients, the backend fires a 'tasks' event that sends all recent tasks sorted_by task_id when a socket connection is established. This ensures that tasks are kept in order during page refreshes and integrates seamlessly with Angular's @for (...; trackBy: task.id) functionality.
 
-Summary:
+#### Key concepts
+
+State Order List:
   1. The CSRF_TOKEN cookie is sent to the user for each request
   2. CSP policy is applied with all scripts being nonced. The flask renders template with render_template function and nonce is applied to ngCspDirective and the meta="nonce" tag in index.html.
   3. New client initiates a socket connection via flask-socketIO.
-  4. Using 'tasks' socket event all latests tasks are sended to the client as (background task) instead of using provided (@GET /api/tasks)
-  5. Each task update is added to the background tasks queue for subsequent execution. (add, remove, update)
+  4. Using 'tasks' socket event all latests tasks are sended to the client as (background task) instead of using provided (@GET /api/tasks) only on 'connect'
+  5. Each task modification from request is added to the (background tasks) queue for subsequent execution. (add, remove, update)
 
 ### RxJS Integration
 
-I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 'delete', 'update') (FASocketService) through RxJS's merge() operator and task management actions with http calls. Each event is mapped to specific action processed through a dedicated reducer (FATasksEffects), enhancing the application's scalability for future expansion.
-
 (Security) - CSP_NONCE is applied with ngCspDirective and the CSRF token is retrieved from the cookie and appended to the headers on each request.
+
+#### Streaming updates
+
+I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 'delete', 'update') (FASocketService) through RxJS's merge() operator and task management actions with http calls. Each event is mapped to specific action processed through a dedicated reducer (FATasksEffects), enhancing the application's scalability for future expansion.
 
 (FATasksEffects) - This system is responsible for managing all actions related to tasks, including actions dispatched in components related to task management and socket events, such as loading notifications, tasks loading, and tasks management.
 
@@ -57,17 +66,20 @@ I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 
 
 In order to alleviate the component's responsibility, I have developed three actions (addTaskAction, updateTaskAction, and deleteTaskAction) that are linked to the provided REST endpoints in separate effects. This approach enables the reducer layer to contain all the logic for state manipulation based on the mapped socket events and user task actions. This approach fosters a clean separation of concerns and establishes a solid foundation for future feature development.
 
-For UI, I used the PrimeNG component library.
+### Key Concepts
 
-Summary:
+For UI, I used the PrimeNG component library and all components have onPush change detection and no view encapsulation, and all paths and routes implement lazy loading.
+
+For smaller bundle size build optimizations are applied in the angular.json file.
+
+State Order List:
   1. After refreshing the page, the socket establishes a connection with backend and executes the loadTasksAction and loadNotificationAction actions. If this attempt is unsuccessful, the socket will attempt to reconnect with a delay of 300
   2. If attempt is successful, the "tasks" event is retrieved from the socket and caught by the loadTasks$ effect then all tasks are populated in the tasks application state using the tasksReducer
   3. In this example, TasksSelector is utilized in a component to retrieve all tasks$ from the store. It is then subscribed with the async pipe in the template to retrieve the latest updates
-  4. All components have onPush change detection and no view encapsulation, and all paths and routes implement lazy loading
-  5. The user initiates a particular action within the component, which subsequently triggers a specific endpoint. In this scenario, the reducer oversees the application's state, specifically for the tasks associated with it
-  6. Specific sendNotificationAction is called from socket ('add', 'remove', 'delete') event, merged into one observable in effects
-  7. Reducer handles specific action sent with notification payload from sendNotification$ effect and updates tasks in application state. At the same time, primeNG Toast is added to the view
-  8. For smaller bundle size build optimizations are applied in the angular.json file
+  4. The user initiates a particular action within the component, which subsequently triggers a specific endpoint. In this scenario, the reducer oversees the application's state, specifically for the tasks associated with it
+  5. Specific sendNotificationAction is called from socket ('add', 'remove', 'delete') event, merged into one observable in sendNotification$ effect
+  6. Reducer handles specific action sent with notification payload from sendNotification$ effect and updates tasks in application state. At the same time, primeNG Toast is added to the view
+  7. Cycle is repeated for new users. For existing users we start at 4.
 
 ## API Reference
 
