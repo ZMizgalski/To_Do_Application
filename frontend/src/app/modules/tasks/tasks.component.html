@@ -1,0 +1,62 @@
+@if (tasks$ | async; as tasks) {
+    <ul
+        [@tasksAnimation]="tasks.length"
+        class="rounded-2xl shadow-xl border-base-200 h-full w-full max-w-xl m-auto"
+    >
+        <li class="p-6 pb-2 text-xs opacity-60 tracking-wide flex justify-between items-center">
+            <p>Todo List</p>
+
+            <p-button
+                icon="pi pi-plus"
+                severity="secondary"
+                size="small"
+                [rounded]="true"
+                [text]="true"
+                (onClick)="openAddDialog()"
+            />
+        </li>
+
+        @for (task of tasks; track task.data.id) {
+            <li class="flex items-center p-6">
+                <p-checkbox
+                    class="pr-4"
+                    size="large"
+                    binary="true"
+                    [ngModel]="task.data.completed"
+                    (onChange)="editTask(
+                        task.data.id,
+                        {
+                            title: task.data.title,
+                            due_date: task.data.due_date,
+                            completed: $event.checked
+                        }
+                    )"
+                />
+
+                <div class="flex flex-col w-full">
+                    <div class="flex items-center mb-1">
+                        <span class="pr-3 text-ellipsis">{{ task.data.title }}</span>
+                    </div>
+
+                    <div class="text-xs uppercase font-bold opacity-60">{{ task.data.due_date }}</div>
+                </div>
+
+                <p-menu
+                    #menu
+                    [model]="task.actions"
+                    [popup]="true"
+                />
+
+                <p-button
+                    icon="pi pi-pencil"
+                    severity="secondary"
+                    [rounded]="true"
+                    [text]="true"
+                    (onClick)="menu.toggle($event)"
+                />
+            </li>
+        } @empty {
+            <li class="list-row p-6">Empty List</li>
+        }
+    </ul>
+}
