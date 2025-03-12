@@ -63,7 +63,7 @@ Summary:
   1. After refreshing the page, the socket establishes a connection with backend and executes the loadTasksAction and loadNotificationAction actions. If this attempt is unsuccessful, the socket will attempt to reconnect with a delay of 300
   2. If attempt is successful, the "tasks" event is retrieved from the socket and caught by the loadTasks$ effect then all tasks are populated in the tasks application state using the tasksReducer
   3. In this example, TasksSelector is utilized in a component to retrieve all tasks$ from the store. It is then subscribed with the async pipe in the template to retrieve the latest updates
-  4. All components have onPush change detection and none view encapsulation
+  4. All components have onPush change detection and no view encapsulation, and all paths and routes implement lazy loading
   5. The user initiates a particular action within the component, which subsequently triggers a specific endpoint. In this scenario, the reducer oversees the application's state, specifically for the tasks associated with it
   6. Specific sendNotificationAction is called from socket ('add', 'remove', 'delete') event, merged into one observable in effects
   7. Reducer handles specific action sent with notification payload from sendNotification$ effect and updates tasks in application state. At the same time, primeNG Toast is added to the view
@@ -133,6 +133,7 @@ Summary:
  - eslint
  - @ngrx/effects
  - @ngrx/store
+ - ts-xor
 
 #### Backend
  - Python
