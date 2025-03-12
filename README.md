@@ -220,3 +220,27 @@ FLASK_ENV=production gunicorn -w 4 -b 0.0.0.0:8000 src.main:app
 ```
 
 ## Screenshots
+
+### 1.
+
+<img width="1127" alt="1" src="https://github.com/user-attachments/assets/93bfc9b4-2f6a-46db-8a64-63a0295ee764" />
+
+### 2.
+
+<img width="1081" alt="2" src="https://github.com/user-attachments/assets/07075e79-954f-4b5c-818b-5ba262e50640" />
+
+### 3.
+
+<img width="1106" alt="3" src="https://github.com/user-attachments/assets/b7ebc68e-af8d-4272-a3e5-7554261407d7" />
+
+### 4.
+
+<img width="816" alt="4" src="https://github.com/user-attachments/assets/d3bd20ea-dad4-4c5d-b58b-387be83bf785" />
+
+### 5.
+
+<img width="1085" alt="5" src="https://github.com/user-attachments/assets/8e28ba65-4b93-4a0c-9964-afa49febbfc0" />
+
+### 6.
+
+https://github.com/user-attachments/assets/1597b441-24c7-41c1-954b-1fa0e9071d6b
