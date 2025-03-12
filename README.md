@@ -4,7 +4,16 @@ A modern task management web application combining Angular frontend with secure 
 
 Security is paramount with comprehensive protections including CSRF tokens, input sanitization against XSS attacks, Content Security Policy enforcement, and rate limiting to prevent DoS attempts.
 
-The application's WebSocket architecture delivers instant task updates via dedicated background threads, ensuring responsive performance without blocking the main application thread. 
+The application's WebSocket architecture delivers instant task updates via dedicated background threads, ensuring responsive performance without blocking the main application thread.
+
+## Table of Contents
+* [Authors](#authors)
+* [Deliverables and Evaluation Criteria](#deliverables-and-evaluation-criteria)
+* [API Reference](#api-reference)
+* [Tech stack](#tech-stack)
+* [Setup](#setup)
+* [Usage](#usage)
+* [Screenshots](#screenshots)
 
 ## Authors
 
@@ -116,7 +125,7 @@ For user interface design, I implemented the PrimeNG component library.
  - marshmallow
  - PostgreSQL
 
-## Application Setup
+## Setup
 
 ### 1. Python
 
@@ -188,7 +197,7 @@ cd frontend
 yarn
 ```
 
-# Deployment
+## Usage
 
 From root directory
 
