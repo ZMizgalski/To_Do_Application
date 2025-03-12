@@ -1,6 +1,5 @@
 from flask import Flask, render_template
 from flask_cors import CORS
-from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_limiter import Limiter
@@ -31,7 +30,6 @@ class Application(Flask):
         self.db = db
         self.migrate = Migrate()
         self.talisman = Talisman()
-        self.bcrypt = Bcrypt()
         self.csrf = CSRFProtect()
         self.socketio = SocketIO()
         self.compress = Compress()
@@ -54,7 +52,6 @@ class Application(Flask):
         self.limiter.init_app(self)
         self.db.init_app(self)
         self.migrate.init_app(self, self.db)
-        self.bcrypt.init_app(self)
         self.compress.init_app(self)
 
         socket_config = {
