@@ -38,7 +38,7 @@ When a user submits a task request, my system follows this process:
   1. Verifies the CSRF token, CSP and common vulnerabilities using (flask-talisman, flask-WTF, Flask-Limiter)
   2. Validates the payload through Marshmallow schema (TaskDTOSchema, TaskDTOUpdateSchema)
   3. Updates the database synchronously
-  4. After the update, the system reliably dispatches a new socket event to the background task queue for asynchronous execution in _worker_loop, ensuring optimal performance in the main thread. (BackgroundTaskQueue)
+  4. After the update, the system reliably adds a new socket event to the (background tasks) queue for asynchronous execution in the _worker_loop, ensuring optimal performance in the main thread. (BackgroundTaskQueue)
   5. Events are populated to the connected clients
 
 For new clients, the backend fires a 'tasks' event that sends all recent tasks sorted_by task_id when a socket connection is established. This ensures that tasks are kept in order during page refreshes and integrates seamlessly with Angular's @for (...; trackBy: task.id) functionality.
