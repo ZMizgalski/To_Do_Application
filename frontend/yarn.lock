@@ -1902,20 +1902,6 @@
     "@napi-rs/nice-win32-ia32-msvc" "1.0.1"
     "@napi-rs/nice-win32-x64-msvc" "1.0.1"
 
-"@ng-icons/core@^31.0.0":
-  version "31.0.0"
-  resolved "https://registry.yarnpkg.com/@ng-icons/core/-/core-31.0.0.tgz#6c8766ff1a7e8342f6573bc47b24825ab36fe7e2"
-  integrity sha512-/CTijAkloQzukFeX6U681LogYq+LK1euppUqbS8GbVPboqvGbtzP66rnzL9/wo6IwHK9i8bCLct6IUKlhfXMyA==
-  dependencies:
-    tslib "^2.3.0"
-
-"@ng-icons/heroicons@^31.0.0":
-  version "31.0.0"
-  resolved "https://registry.yarnpkg.com/@ng-icons/heroicons/-/heroicons-31.0.0.tgz#321269f8619b9a175cc272162b713480ec69a395"
-  integrity sha512-HhC4KbSDH4xAtKKDkxuDHiHizvH/lLZ2Im/0xSxyYa7Rw2u63VFAFKbqwTD3C1Vge+W/EwjKNJ/y44gOHnFYjA==
-  dependencies:
-    tslib "^2.3.0"
-
 "@ngrx/effects@^19.0.1":
   version "19.0.1"
   resolved "https://registry.yarnpkg.com/@ngrx/effects/-/effects-19.0.1.tgz#fc0009d50814f0382c17759e8b9f3412ac28aa79"
@@ -3721,11 +3707,6 @@ custom-event@~1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/custom-event/-/custom-event-1.0.1.tgz#5d02a46850adf1b4a317946a3928fccb5bfd0425"
   integrity sha512-GAj5FOq0Hd+RsCGVJxZuKaIDXDf3h6GQoNEjFgbLLI/trgtavwUbSnZ5pVfg27DVCaWjIohryS0JFwIJyT2cMg==
-
-daisyui@^5.0.0:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/daisyui/-/daisyui-5.0.2.tgz#81aaab61a60aab75369f40df386c7103c6352a4a"
-  integrity sha512-AfOlwcE+Ukwuh2NSrMDE8VXOl9UWidj2Q5f64DEYqtZVW0Z9pELBA50iGEKg2FpBUvztFY5DFv7+eZgRts70BA==
 
 date-format@^4.0.14:
   version "4.0.14"
