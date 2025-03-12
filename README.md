@@ -8,32 +8,37 @@ The application's WebSocket architecture delivers instant task updates via dedic
 
 ## Authors
 
-- [@ZMizgalski](https://github.com/ZMizgalski)
+[@ZMizgalski](https://github.com/ZMizgalski)
 
-## Required Tasks
+## ! Deliverables and Evaluation Criteria !
 
-I've implemented whole application for this showcase.
+I have implemented the entire application for this showcase.
+
+### Asynchronous Notification
+
+(BackgroundTaskQueue) - To prevent the main thread from being blocked, I implemented BackgroundTaskQueue, which handles background tasks in the queue. After each request, new (background task) is appended to the queue using the add_task function. These tasks are then executed in the background. To enhance efficiency and reduce unnecessary CPU usage, task_queue utilizes a timeout of 0.5, which can minimize excessive waiting. The BackgroundTaskQueue feature allows for the configuration of num_workers, thereby enabling the management of a specified number of background workers for task execution.
+
+(Security) - I have included sanitation and application vulnerabilities protection mechanisms, such as CSRF, CSP, etc.
+
+When a user submits a task request, my system follows this process:
+  1. Verifies the CSRF token, CSP and common vulnerabilities using (flask-talisman, flask-WTF, Flask-Limiter)
+  2. Validates the payload through Marshmallow schema (TaskDTOSchema, TaskDTOUpdateSchema)
+  3. Updates the database synchronously
+  4. After the update, the system reliably dispatches a new socket event to the background task queue for asynchronous execution in _worker_loop, ensuring optimal performance in the main thread. (BackgroundTaskQueue)
+
+For new clients, backend transmits all latest tasks sorted_by task_id when socket connection is established. This ensures that tasks remain ordered during page refreshes and seamlessly integrates with Angular's @for (...; trackBy: task.id) functionality.
 
 ### RxJS Integration
 
-I implemented NgRx architecture instead of using a single REST endpoint which was already provided @Get /api/tasks. I used NgRx/Effects and NgRx/Store to handle separate socket events ('add', 'delete', 'update') combined through RxJS's merge() operator.
+I implemented NgRx architecture integrated with socket events instead of using a single REST endpoint, which was already provided (@GET /api/tasks). I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 'delete', 'update') (FASocketService) through RxJS's merge() operator. Each event is mapped to specific actions processed through a dedicated reducer (FATasksEffects), enhancing the application's scalability for future expansion.
 
-Each event maps to specific actions processed through dedicated reducers, which significantly enhances my application's scalability.
+(FATasksEffects) - This system is responsible for managing all actions related to tasks, including actions dispatched in components related to task management and socket events, such as task loading notifications, task loading, and task management.
 
-Also to relieve the component of responsibility I created 'add', 'update', 'delete' actions which connects provided endpoints in separate effects.
+(FASocketService) - Oversees the management of socket connections and socket events in the constructor during the 'connect' event with teardown, as provided by socket.io-client. It also dispatches loadTasksAction and loadNotificationAction to maintain application connectivity in the event of connection issues or reconnection. The reconnect option is set to true and the delay is specified. To enhance cross-platform compatibility, two transports [ 'pooling', 'websocket' ] are employed as a fallback mechanism. 
 
-Reducer layer contains all the logic for state manipulation based on the mapped socket events and task actions. This creates a clean separation of concerns and provides a solid foundation for adding future features.
+In order to alleviate the component's responsibility, I have developed three actions (addTaskAction, updateTaskAction, and deleteTaskAction) that are linked to the provided REST endpoints in separate effects. This approach enables the reducer layer to contain all the logic for state manipulation based on the mapped socket events and user task actions. This approach fosters a clean separation of concerns and establishes a solid foundation for future feature development.
 
-When a user submits a task request, my system follows this process:
-
-  1. Verifies the CSRF token and CSP and common vulnerabilities using (flask-talisman, flask-WTF)
-  2. Validates the payload through Marshmallow schema (TaskDTOSchema, TaskDTOUpdateSchema)
-  3. Updates the database synchronously
-  4. After successful database update, I dispatch new socket event to the background task queue for laster asynchronous execution, keeping my main thread performant.
-
-For new clients, my backend transmits all tasks sorted by task_id when a socket connection is established. This prevents task reordering during page refreshes and works perfectly with Angular's @for trackBy directive with task.id tracking.
-
-For UI I was using the PrimeNG component library
+For user interface design, I implemented the PrimeNG component library.
 
 ## API Reference
 
