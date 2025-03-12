@@ -13,7 +13,8 @@ The application's WebSocket architecture delivers instant task updates via dedic
 * [Tech stack](#tech-stack)
 * [Setup](#setup)
 * [Usage](#usage)
-* [Screenshots](#screenshots)
+* [Room for Improvement](#room-for-improvement)
+* [Showcase](#showcase)
 
 ## Authors
 
@@ -25,7 +26,7 @@ I have implemented the entire application for this showcase.
 
 ### Asynchronous Notification
 
-(BackgroundTaskQueue) - To prevent the main thread from being blocked, I implemented BackgroundTaskQueue, which handles background tasks in the queue. After each request, new (background task) is appended to the queue using the add_task function. These tasks are then executed in the background. To enhance efficiency and reduce unnecessary CPU usage, task_queue utilizes a timeout of 0.5, which can minimize excessive waiting. The BackgroundTaskQueue feature allows for the configuration of num_workers, thereby enabling the management of a specified number of background workers for task execution.
+(BackgroundTaskQueue) - To prevent the main thread from being blocked, I implemented BackgroundTaskQueue class, which handles background tasks in the queue using python threading. After each request, new (background task) is appended to the queue using the add_task function. These tasks are then executed in the background. To enhance efficiency and reduce unnecessary CPU usage, task_queue.get utilizes a timeout of 0.5, which can minimize excessive waiting. The BackgroundTaskQueue allows for the configuration of num_workers, thereby enabling the management of a specified number of background workers for task execution.
 
 (Security) - I have included sanitation and application vulnerabilities protection mechanisms, such as CSRF, CSP, etc.
 
@@ -37,17 +38,36 @@ When a user submits a task request, my system follows this process:
 
 For new clients, backend transmits all latest tasks sorted_by task_id when socket connection is established. This ensures that tasks remain ordered during page refreshes and seamlessly integrates with Angular's @for (...; trackBy: task.id) functionality.
 
+Summary:
+  1. The CSRF_TOKEN cookie is sent to the user for each request
+  2. CSP policy is applied with all scripts being nonced. The flask renders template with render_template function and nonce is applied to ngCspDirective and the meta="nonce" tag in index.html.
+  3. New client initiates a socket connection via flask-socketIO.
+  4. Using 'tasks' socket event all latests tasks are sended to the client as (background task) instead of using provided (@GET /api/tasks)
+  5. Each task update is added to the background tasks queue for subsequent execution. (add, remove, update)
+
 ### RxJS Integration
 
-I implemented NgRx architecture integrated with socket events instead of using a single REST endpoint, which was already provided (@GET /api/tasks). I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 'delete', 'update') (FASocketService) through RxJS's merge() operator. Each event is mapped to specific actions processed through a dedicated reducer (FATasksEffects), enhancing the application's scalability for future expansion.
+I employed NgRx/Effects and NgRx/Store to manage distinct socket events ('add', 'delete', 'update') (FASocketService) through RxJS's merge() operator and task management actions with http calls. Each event is mapped to specific action processed through a dedicated reducer (FATasksEffects), enhancing the application's scalability for future expansion.
 
-(FATasksEffects) - This system is responsible for managing all actions related to tasks, including actions dispatched in components related to task management and socket events, such as task loading notifications, task loading, and task management.
+(Security) - CSP_NONCE is applied with ngCspDirective and the CSRF token is retrieved from the cookie and appended to the headers on each request.
 
-(FASocketService) - Oversees the management of socket connections and socket events in the constructor during the 'connect' event with teardown, as provided by socket.io-client. It also dispatches loadTasksAction and loadNotificationAction to maintain application connectivity in the event of connection issues or reconnection. The reconnect option is set to true and the delay is specified. To enhance cross-platform compatibility, two transports [ 'pooling', 'websocket' ] are employed as a fallback mechanism. 
+(FATasksEffects) - This system is responsible for managing all actions related to tasks, including actions dispatched in components related to task management and socket events, such as loading notifications, tasks loading, and tasks management.
+
+(FASocketService) - Oversees the management of socket connections and socket events in the constructor during the 'connect' event with teardown, as provided by socket.io-client. It also dispatches loadTasksAction and loadNotificationAction to maintain application connectivity in the event of connection issues. The reconnect option is set to true and the delay is specified. To enhance cross-platform compatibility, two transports [ 'pooling', 'websocket' ] are employed as a fallback mechanism. 
 
 In order to alleviate the component's responsibility, I have developed three actions (addTaskAction, updateTaskAction, and deleteTaskAction) that are linked to the provided REST endpoints in separate effects. This approach enables the reducer layer to contain all the logic for state manipulation based on the mapped socket events and user task actions. This approach fosters a clean separation of concerns and establishes a solid foundation for future feature development.
 
-For user interface design, I implemented the PrimeNG component library.
+For UI, I used the PrimeNG component library.
+
+Summary:
+  1. After refreshing the page, the socket establishes a connection with backend and executes the loadTasksAction and loadNotificationAction actions. If this attempt is unsuccessful, the socket will attempt to reconnect with a delay of 300
+  2. If attempt is successful, the "tasks" event is retrieved from the socket and caught by the loadTasks$ effect then all tasks are populated in the tasks application state using the tasksReducer
+  3. In this example, TasksSelector is utilized in a component to retrieve all tasks$ from the store. It is then subscribed with the async pipe in the template to retrieve the latest updates
+  4. All components have onPush change detection and none view encapsulation
+  5. The user initiates a particular action within the component, which subsequently triggers a specific endpoint. In this scenario, the reducer oversees the application's state, specifically for the tasks associated with it
+  6. Specific sendNotificationAction is called from socket ('add', 'remove', 'delete') event, merged into one observable in effects
+  7. Reducer handles specific action sent with notification payload from sendNotification$ effect and updates tasks in application state. At the same time, primeNG Toast is added to the view
+  8. For smaller bundle size build optimizations are applied in the angular.json file
 
 ## API Reference
 
@@ -109,6 +129,7 @@ For user interface design, I implemented the PrimeNG component library.
  - @tailwindcss
  - socket.io-client
  - rxjs
+ - lodash-es
  - eslint
  - @ngrx/effects
  - @ngrx/store
@@ -116,6 +137,9 @@ For user interface design, I implemented the PrimeNG component library.
 #### Backend
  - Python
  - Flask
+ - Flask-Cors
+ - Gunicorn
+ - python-dotenv
  - Flask-WTF
  - Flask-Compress
  - Flask-Limiter
@@ -228,7 +252,10 @@ NGINX configuration required
 FLASK_ENV=production gunicorn -w 4 -b 0.0.0.0:8000 src.main:app
 ```
 
-## Screenshots
+## Room for Improvement
+- Tests
+
+## Showcase
 
 ### 1.
 
