@@ -118,21 +118,6 @@ State Order List:
 | :-------- | :-------- | :------------------------------------------------ |
 | `task_id` | `integer` | **Required** The unique ID of the task to update. |
 
-#### Get news
-
-```http
-  GET /api/getNews/:id
-```
-
-| Header          | Type     | Description                |
-| :-------------- | :------- | :------------------------- |
-| `Authorization` | `string` | **Required**. Bearer token |
-
-| Parameter | Type     | Description          |
-| :-------- | :------- | :------------------- |
-| `id`      | `string` | **Required** User id |
-
-
 ## Tech stack
 
 #### Frontend
