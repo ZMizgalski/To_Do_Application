@@ -83,7 +83,7 @@ State Order List:
 
 ## API Reference
 
-#### Authorize
+#### Add Task
 
 ```http
   POST /api/tasks
@@ -95,7 +95,7 @@ State Order List:
 | `completed` | `boolean` | **Required** The status of the task (True for completed, False otherwise).                |
 | `due_date	` | `string`  | **Required** The due date of the task in the format YYYY-MM-DD. It must be a future date. |
 
-#### Register
+#### Update Task
 
 ```http
   PUT /api/tasks/<int:task_id>
